@@ -1,7 +1,7 @@
 #!/bin/bash
 
 if curl -s https://raw.githubusercontent.com/cryptongithub/init/main/empty.sh > /dev/null 2>&1; then
-	echo ''
+    echo ''
 else
   sudo apt install curl -y
 fi
@@ -101,7 +101,7 @@ function create_username {
 }
 
 function cleanup {
-      echo -e '\e[40m\e[91mAll previous data will be deleted. Triple check that you have saved all the necessary data.\e[0m' 
+      echo -e '\e[40m\e[91mAll previous data will be deleted. Triple check that you have saved all the necessary data!!!\e[0m' 
       read -p "Do you want to continue? Y/N: " -n 1 -r 
       if [[ $REPLY =~ ^[Yy]$ ]] 
         then
@@ -118,11 +118,11 @@ function cleanup {
 }
 
 echo -e '\e[40m\e[92mPlease enter your choice (input your option number and press Enter): \e[0m'
-options=("Intall and create wallet" "Check balance (account_number, sequence)" "Create board" "Сreate username" "Clean up!" "Quit")
+options=("Intall and create/restore wallet" "Check balance (account_number, sequence)" "Create board" "Сreate username" "Clean up!" "Quit")
 select option in "${options[@]}"
 do
     case $option in
-        "Intall and create wallet")
+        "Intall and create/restore wallet")
             install_and_create
             break
             ;;
