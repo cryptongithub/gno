@@ -118,7 +118,7 @@ function cleanup {
 }
 
 echo -e '\e[40m\e[92mPlease enter your choice (input your option number and press Enter): \e[0m'
-options=("Intall and create wallet" "Check balance (account_number, sequence)" "Create board" "Clean up!" "Quit")
+options=("Intall and create wallet" "Check balance (account_number, sequence)" "Create board" "Clean username" "Clean up!" "Quit")
 select option in "${options[@]}"
 do
     case $option in
