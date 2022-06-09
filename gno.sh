@@ -6,12 +6,14 @@ else
   sudo apt install curl -y
 fi
 
-alias gnokey="cd $HOME/gno && ./build/gnokey"
+. $HOME/.bashrc && . $HOME/.bash_profile
 
 curl -s https://raw.githubusercontent.com/cryptongithub/init/main/logo.sh | bash 
 echo -e '\e[40m\e[92mCrypton Academy is a unique cryptocurrency community. \nCommunity chat, early gems, calendar of events, Ambassador programs, nodes, testnets, personal assistant. \nJoin (TG): \e[95mt.me/CryptonLobbyBot\e[40m\e[92m.\e[0m\n'
 
 function install_and_create {
+    echo 'alias gnokey="cd $HOME/gno && ./build/gnokey"' >> $HOME/.bashrc
+    source $HOME/.bashrc
 
     echo -e '\n\e[40m\e[92m1. Starting update...\e[0m'
 
@@ -19,7 +21,7 @@ function install_and_create {
 
     sudo apt install git make tar wget -y 
     
-    source $HOME/.bash_profile
+    . $HOME/.bashrc && . $HOME/.bash_profile
     if go version > /dev/null 2>&1
     then
         echo -e '\n\e[40m\e[92mSkipped Go installation\e[0m'
@@ -32,7 +34,7 @@ function install_and_create {
         sudo rm "go$ver.linux-amd64.tar.gz"
         echo "export PATH=$PATH:/usr/local/go/bin:$HOME/go/bin" >> $HOME/.bash_profile
         echo "export PATH=$PATH:/usr/local/go/bin:$HOME/go/bin" >> $HOME/.bash_profilesource
-        source $HOME/.bash_profile
+        . $HOME/.bashrc && . $HOME/.bash_profile
         go version
     fi
 
@@ -45,19 +47,19 @@ function install_and_create {
     SEED_GNO=
     echo -e '\e[40m\e[92m' && read -p "Enter Wallet name: " GNO_WALLET && echo -e '\e[0m'
     echo 'export GNO_WALLET='${GNO_WALLET} >> $HOME/.bash_profile
-    source $HOME/.bash_profile
+    . $HOME/.bashrc && . $HOME/.bash_profile
     echo -e '\e[40m\e[92mRecovering wallet...\e[0m'
     echo -e '\e[40m\e[92mYou will need to type in and remember\e[40m\e[91m a passphrase\e[40m\e[92m (e.g. 1a3b5c7e) and then you will be asked to type in your \e[40m\e[91mseed phrase\e[40m\e[92m. \nYou can use any seed phrase not necessarily generated above.\e[0m' 
     ./build/gnokey add $GNO_WALLET --recover
-    GNO_ADDRESS=$(./build/gnokey list | grep -Po '(?<=addr:\ ).*(?=\ pub:\ )')
+    GNO_ADDRESS=$(gnokey list | grep -Po '(?<=addr:\ ).*(?=\ pub:\ )')
     echo -e '\e[40m\e[92mSave your address:\e[40m\e[91m '$GNO_ADDRESS'\e[40m\e[92m and request test tokens on \e[40m\e[91mgno.land/faucet\e[40m\e[92m.\e[0m'
     echo 'export GNO_ADDRESS='${GNO_ADDRESS} >> $HOME/.bash_profile
-    source $HOME/.bash_profile
+    . $HOME/.bashrc && . $HOME/.bash_profile
     alias gnokey="cd $HOME/gno && ./build/gnokey"
 }
 
 function check_balance {
-    source $HOME/.bash_profile
+    . $HOME/.bashrc && . $HOME/.bash_profile
     cd $HOME/gno
     BALANCE=$(./build/gnokey query auth/accounts/$GNO_ADDRESS --remote gno.land:36657 | grep -Po '(?<="coins":\ ").*(?=",)')
     account_number=$(./build/gnokey query auth/accounts/$GNO_ADDRESS --remote gno.land:36657 | grep -Po '(?<="account_number":\ ").*(?=",)')
@@ -69,7 +71,7 @@ function check_balance {
 }
 
 function create_board {
-    source $HOME/.bash_profile
+    . $HOME/.bashrc && . $HOME/.bash_profile
     cd $HOME/gno
     rm -r $HOME/gno/createboard.unsigned.txt $HOME/gno/createboard.signed.txt
     echo -e '\n\e[40m\e[92m' && read -p "Enter board name (only a-z, 0-9): " GNO_BOARD_NAME && echo -e '\e[0m'
@@ -77,6 +79,25 @@ function create_board {
     ./build/gnokey sign $GNO_WALLET --txpath createboard.unsigned.txt --chainid "testchain" --number $(./build/gnokey query auth/accounts/$GNO_ADDRESS --remote gno.land:36657 | grep -Po '(?<="account_number":\ ").*(?=",)') --sequence $(./build/gnokey query auth/accounts/$GNO_ADDRESS --remote gno.land:36657 | grep -Po '(?<="sequence":\ ").*(?=")') > createboard.signed.txt
     ./build/gnokey broadcast createboard.signed.txt --remote gno.land:36657
     echo -e '\e[40m\e[92mIf you see something like: \e[2m\nOK! \nGAS WANTED: 2100000 \nGAS USED:   2008000\e[0m\e[40m\e[92m\na line above, your board was successfully created.\n\nNow go through \e[40m\e[91mgno.land/r/boards\e[40m\e[92m and find your board with name: \e[40m\e[91m'$GNO_BOARD_NAME'\e[40m\e[92m.\e[0m'
+}
+
+function create_username {
+    . $HOME/.bashrc && . $HOME/.bash_profile
+    cd $HOME/gno
+    echo -e '\e[40m\e[92mStarted faucet depredation...\e[0m'
+    for i in {1..20}; do curl 'https://gno.land:5050/' --data-raw 'toaddr='$GNO_ADDRESS; sleep 2; done;
+    BALANCE=$(./build/gnokey query auth/accounts/$GNO_ADDRESS --remote gno.land:36657 | grep -Po '(?<="coins":\ ").*(?=",)')
+    echo -e '\e[40m\e[92mBalance:\e[0m '$BALANCE
+    rm -r $HOME/gno/unsigned.txt $HOME/gno/signed.txt
+    echo -e '\n\e[40m\e[92m' && read -p "Enter username (only a-z, 0-9, _): " GNO_USERNAME && echo -e '\e[0m'
+    ./build/gnokey maketx call $GNO_WALLET --pkgpath "gno.land/r/users" --func "Register" --gas-fee 1gnot --gas-wanted 2000000 --send "2000gnot" --args "" --args $GNO_USERNAME --args "" > unsigned.tx
+    account_number=$(./build/gnokey query auth/accounts/$GNO_ADDRESS --remote gno.land:36657 | grep -Po '(?<="account_number":\ ").*(?=",)')
+    sequence=$(./build/gnokey query auth/accounts/$GNO_ADDRESS --remote gno.land:36657 | grep -Po '(?<="sequence":\ ").*(?=")')
+    ./build/gnokey sign $GNO_WALLET --txpath unsigned.tx --chainid testchain --number $account_number --sequence $sequence > signed.tx
+    ./build/gnokey broadcast signed.txt --remote gno.land:36657
+    echo -e '\e[40m\e[92mIf you see something like: \e[2m\nOK! \nGAS WANTED: 2100000 \nGAS USED:   2008000\e[0m\e[40m\e[92m\na line above, your board was successfully created.\n\nNow go through \e[40m\e[91mgno.land/r/boards\e[40m\e[92m and find your board with name: \e[40m\e[91m'$GNO_BOARD_NAME'\e[40m\e[92m.\e[0m'
+    echo 'export GNO_USERNAME='${GNO_USERNAME} >> $HOME/.bash_profile
+    . $HOME/.bashrc && . $HOME/.bash_profile
 }
 
 function cleanup {
@@ -111,6 +132,10 @@ do
             ;;
          "Create board")
             create_board
+            break
+            ;;
+         "Clean username")
+            create_username
             break
             ;;
          "Clean up!")
