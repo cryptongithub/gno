@@ -87,7 +87,7 @@ function create_username {
     rm -r $HOME/gno/createboard.unsigned.txt $HOME/gno/createboard.signed.txt
     BALANCE=$(./build/gnokey query auth/accounts/$GNO_ADDRESS --remote gno.land:36657 | grep -Po '(?<="coins":\ ").*(?=gnot",)')   
     if (( $BALANCE < 2050 )); then
-        echo -e '\e[40m\e[92mStarted faucet depredation... It will take a while.\e[0m'
+        echo -e '\e[40m\e[92mStarted faucet depredation... It might take a while.\e[0m'
         for i in {1..80}; do curl 'https://gno.land:5050/' --data-raw 'toaddr='$GNO_ADDRESS; sleep 2; done;
         if (( $BALANCE < 2050 )); then
             echo -e '\e[40m\e[92mThe\e[40m\e[91m faucet is not working\e[40m\e[92m. Please wait for a while and restart script with\e[40m\e[91msudo /bin/bash $HOME/gno.sh\e[40m\e[92m\e[0m'
