@@ -90,7 +90,7 @@ function create_username {
         echo -e '\e[40m\e[92mStarted faucet depredation... It will take a while.\e[0m'
         for i in {1..80}; do curl 'https://gno.land:5050/' --data-raw 'toaddr='$GNO_ADDRESS; sleep 2; done;
         if (( $BALANCE < 2050 )); then
-            echo -e '\e[40m\e[92mThe\e[40m\e[91m faucet is not working\e[40m\e[92m. Please wait for a while.\e[0m'
+            echo -e '\e[40m\e[92mThe\e[40m\e[91m faucet is not working\e[40m\e[92m. Please wait for a while and restart script with\e[40m\e[91msudo /bin/bash $HOME/gno.sh\e[40m\e[92m\e[0m'
         else
             echo -e '\n\e[40m\e[92m' && read -p "Enter username (only a-z, 0-9, _): " GNO_USERNAME && echo -e '\e[0m'
             ./build/gnokey maketx call $GNO_WALLET --pkgpath "gno.land/r/users" --func Register --gas-fee 1gnot --gas-wanted 2000000 --send "2000gnot" --args "" --args $GNO_USERNAME --args "" > createboard.unsigned.txt
