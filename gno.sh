@@ -84,20 +84,31 @@ function create_board {
 function create_username {
     . $HOME/.bashrc && . $HOME/.bash_profile
     cd $HOME/gno
-    echo -e '\e[40m\e[92mStarted faucet depredation...\e[0m'
-    for i in {1..20}; do curl 'https://gno.land:5050/' --data-raw 'toaddr='$GNO_ADDRESS; sleep 2; done;
-    BALANCE=$(./build/gnokey query auth/accounts/$GNO_ADDRESS --remote gno.land:36657 | grep -Po '(?<="coins":\ ").*(?=",)')
-    echo -e '\e[40m\e[92mBalance:\e[0m '$BALANCE
-    rm -r $HOME/gno/unsigned.txt $HOME/gno/signed.txt
-    echo -e '\n\e[40m\e[92m' && read -p "Enter username (only a-z, 0-9, _): " GNO_USERNAME && echo -e '\e[0m'
-    ./build/gnokey maketx call $GNO_WALLET --pkgpath "gno.land/r/users" --func "Register" --gas-fee 1gnot --gas-wanted 2000000 --send "2000gnot" --args "" --args $GNO_USERNAME --args "" > unsigned.tx
-    account_number=$(./build/gnokey query auth/accounts/$GNO_ADDRESS --remote gno.land:36657 | grep -Po '(?<="account_number":\ ").*(?=",)')
-    sequence=$(./build/gnokey query auth/accounts/$GNO_ADDRESS --remote gno.land:36657 | grep -Po '(?<="sequence":\ ").*(?=")')
-    ./build/gnokey sign $GNO_WALLET --txpath unsigned.tx --chainid testchain --number $account_number --sequence $sequence > signed.tx
-    ./build/gnokey broadcast signed.txt --remote gno.land:36657
-    echo -e '\e[40m\e[92mIf you see something like: \e[2m\nOK! \nGAS WANTED: 2100000 \nGAS USED:   2008000\e[0m\e[40m\e[92m\na line above, your board was successfully created.\n\nNow go through \e[40m\e[91mgno.land/r/boards\e[40m\e[92m and find your board with name: \e[40m\e[91m'$GNO_BOARD_NAME'\e[40m\e[92m.\e[0m'
-    echo 'export GNO_USERNAME='${GNO_USERNAME} >> $HOME/.bash_profile
-    . $HOME/.bashrc && . $HOME/.bash_profile
+    rm -r $HOME/gno/createboard.unsigned.txt $HOME/gno/createboard.signed.txt
+    BALANCE=$(./build/gnokey query auth/accounts/$GNO_ADDRESS --remote gno.land:36657 | grep -Po '(?<="coins":\ ").*(?=gnot",)')   
+    if (( $BALANCE < 2050 )); then
+        echo -e '\e[40m\e[92mStarted faucet depredation... It will take a while.\e[0m'
+        for i in {1..80}; do curl 'https://gno.land:5050/' --data-raw 'toaddr='$GNO_ADDRESS; sleep 2; done;
+        if (( $BALANCE < 2050 )); then
+            echo -e '\e[40m\e[92mThe\e[40m\e[91m faucet is not working\e[40m\e[92m. Please wait for a while.\e[0m'
+        else
+            echo -e '\n\e[40m\e[92m' && read -p "Enter username (only a-z, 0-9, _): " GNO_USERNAME && echo -e '\e[0m'
+            ./build/gnokey maketx call $GNO_WALLET --pkgpath "gno.land/r/users" --func Register --gas-fee 1gnot --gas-wanted 2000000 --send "2000gnot" --args "" --args $GNO_USERNAME --args "" > createboard.unsigned.txt
+            ./build/gnokey sign $GNO_WALLET --txpath createboard.unsigned.txt --chainid "testchain" --number $(./build/gnokey query auth/accounts/$GNO_ADDRESS --remote gno.land:36657 | grep -Po '(?<="account_number":\ ").*(?=",)') --sequence $(./build/gnokey query auth/accounts/$GNO_ADDRESS --remote gno.land:36657 | grep -Po '(?<="sequence":\ ").*(?=")') > createboard.signed.txt
+            ./build/gnokey broadcast createboard.signed.txt --remote gno.land:36657
+            echo -e '\e[40m\e[92mIf you see something like: \e[2m\nOK! \nGAS WANTED: 2100000 \nGAS USED:   2008000\e[0m\e[40m\e[92m\na line above, your username was successfully created.\e[40m\e[92m.\e[0m'
+            echo 'export GNO_USERNAME='${GNO_USERNAME} >> $HOME/.bash_profile
+            . $HOME/.bashrc && . $HOME/.bash_profile
+        fi
+    else
+            echo -e '\n\e[40m\e[92m' && read -p "Enter username (only a-z, 0-9, _): " GNO_USERNAME && echo -e '\e[0m'
+            ./build/gnokey maketx call $GNO_WALLET --pkgpath "gno.land/r/users" --func Register --gas-fee 1gnot --gas-wanted 2000000 --send "2000gnot" --args "" --args $GNO_USERNAME --args "" > createboard.unsigned.txt
+            ./build/gnokey sign $GNO_WALLET --txpath createboard.unsigned.txt --chainid "testchain" --number $(./build/gnokey query auth/accounts/$GNO_ADDRESS --remote gno.land:36657 | grep -Po '(?<="account_number":\ ").*(?=",)') --sequence $(./build/gnokey query auth/accounts/$GNO_ADDRESS --remote gno.land:36657 | grep -Po '(?<="sequence":\ ").*(?=")') > createboard.signed.txt
+            ./build/gnokey broadcast createboard.signed.txt --remote gno.land:36657
+            echo -e '\e[40m\e[92mIf you see something like: \e[2m\nOK! \nGAS WANTED: 2100000 \nGAS USED:   2008000\e[0m\e[40m\e[92m\na line above, your username was successfully created.\e[40m\e[92m.\e[0m'
+            echo 'export GNO_USERNAME='${GNO_USERNAME} >> $HOME/.bash_profile
+            . $HOME/.bashrc && . $HOME/.bash_profile
+    fi
 }
 
 function cleanup {
