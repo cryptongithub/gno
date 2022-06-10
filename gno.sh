@@ -51,6 +51,7 @@ function install_and_create {
     echo -e '\e[40m\e[92mRecovering wallet...\e[0m'
     echo -e '\e[40m\e[92mYou will need to type in and remember\e[40m\e[91m a passphrase\e[40m\e[92m (e.g. 1a3b5c7e) and then you will be asked to type in your \e[40m\e[91mseed phrase\e[40m\e[92m. \nYou can use any seed phrase not necessarily generated above.\e[0m' 
     ./build/gnokey add $GNO_WALLET --recover
+    sleep 5
     GNO_ADDRESS=$(gnokey list | grep -Po '(?<=addr:\ ).*(?=\ pub:\ )')
     echo -e '\e[40m\e[92mSave your address:\e[40m\e[91m '$GNO_ADDRESS'\e[40m\e[92m and request test tokens on \e[40m\e[91mgno.land/faucet\e[40m\e[92m.\e[0m'
     echo 'export GNO_ADDRESS='${GNO_ADDRESS} >> $HOME/.bash_profile
@@ -90,7 +91,7 @@ function create_username {
         echo -e '\e[40m\e[92mStarted faucet depredation... It might take a while.\e[0m'
         for i in {1..80}; do curl 'https://gno.land:5050/' --data-raw 'toaddr='$GNO_ADDRESS; sleep 2; done;
         if (( $BALANCE < 2050 )); then
-            echo -e '\e[40m\e[92mThe\e[40m\e[91m faucet is not working\e[40m\e[92m. Please wait for a while and restart script with\e[40m\e[91msudo /bin/bash $HOME/gno.sh\e[40m\e[92m\e[0m'
+            echo -e '\n\e[40m\e[92mThe\e[40m\e[91m faucet is not working\e[40m\e[92m. Please wait for a while and restart script with\e[40m\e[91m sudo /bin/bash $HOME/gno.sh\e[40m\e[92m\e[0m'
         else
             echo -e '\n\e[40m\e[92m' && read -p "Enter username (only a-z, 0-9, _): " GNO_USERNAME && echo -e '\e[0m'
             ./build/gnokey maketx call $GNO_WALLET --pkgpath "gno.land/r/users" --func Register --gas-fee 1gnot --gas-wanted 2000000 --send "2000gnot" --args "" --args $GNO_USERNAME --args "" > createboard.unsigned.txt
