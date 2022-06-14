@@ -37,7 +37,7 @@ function install_and_create {
         . $HOME/.bashrc && . $HOME/.bash_profile
         go version
     fi
-
+    rm -rf $HOME/gno
     echo -e '\n\e[40m\e[92m2. Starting Gno Installation...\e[0m'
     cd $HOME && git clone https://github.com/gnolang/gno/
     cd $HOME/gno && make
