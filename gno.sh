@@ -52,7 +52,7 @@ function install_and_create {
     echo -e '\e[40m\e[92mYou will need to type in and remember\e[40m\e[91m a passphrase\e[40m\e[92m (e.g. 1a3b5c7e) and then you will be asked to type in your \e[40m\e[91mseed phrase\e[40m\e[92m. \nYou can use any seed phrase not necessarily generated above.\e[0m' 
     ./build/gnokey add $GNO_WALLET --recover
     sleep 5
-    GNO_ADDRESS=$(gnokey list | grep -Po '(?<=addr:\ ).*(?=\ pub:\ )')
+    GNO_ADDRESS=$(./build/gnokey list | grep -Po '(?<=addr:\ ).*(?=\ pub:\ )')
     echo -e '\e[40m\e[92mSave your address:\e[40m\e[91m '$GNO_ADDRESS'\e[40m\e[92m and request test tokens on \e[40m\e[91mgno.land/faucet\e[40m\e[92m.\e[0m'
     echo 'export GNO_ADDRESS='${GNO_ADDRESS} >> $HOME/.bash_profile
     . $HOME/.bashrc && . $HOME/.bash_profile
